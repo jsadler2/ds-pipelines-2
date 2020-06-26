@@ -1,15 +1,18 @@
 
-download_nwis_data <- function(site_nums = c("01427207", "01432160", "01435000", "01436690", "01466500")){
-  
-  # create the file names that are needed for download_nwis_site_data
-  # tempdir() creates a temporary directory that is wiped out when you start a new R session; 
-  # replace tempdir() with "1_fetch/out" or another desired folder if you want to retain the download
-  download_files <- file.path(tempdir(), paste0('nwis_', site_nums, '_data.csv'))
+make_table <- function(site_data_dir){
+  file_names = dir(site_data_dir)
+  m5sums = as.vector(md5sum(site_data_dir))
+  df = data.frame('filename' = file_names, 'm5sums'=m5sums)
+  return(df)
+}
+
+
+combine_csvs <- function(input_data_table, out_dir){
+  # loop through downloaded files
+  download_files <- file.path(out_dir, input_data_table$filename)
   data_out <- data.frame(agency_cd = c(), site_no = c(), dateTime = c(), 
                          X_00010_00000 = c(), X_00010_00000_cd = c(), tz_cd = c())
-  # loop through files to download 
   for (download_file in download_files){
-    download_nwis_site_data(download_file, parameterCd = '00010')
     # read the downloaded data and append it to the existing data.frame
     these_data <- read_csv(download_file, col_types = 'ccTdcc')
     data_out <- rbind(data_out, these_data)
@@ -34,7 +37,7 @@ download_nwis_site_data <- function(filepath, parameterCd = '00010', startDate="
   # readNWISdata is from the dataRetrieval package
   data_out <- readNWISdata(sites=site_num, service="iv", 
                            parameterCd = parameterCd, startDate = startDate, endDate = endDate)
-
+  
   # -- simulating a failure-prone web-sevice here, do not edit --
   if (sample(c(T,F,F,F), 1)){
     stop(site_num, ' has failed due to connection timeout. Try scmake() again')
