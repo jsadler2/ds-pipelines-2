@@ -28,8 +28,8 @@ targets:
   1_fetch/out/site_data/nwis_01466500_data.csv:
     command: download_nwis_site_data(filepath=target_name)
 
-  site_data:
-    command: combine_csvs("1_fetch/out/site_data")
+  1_fetch/out/site_data_combined.csv:
+    command: combine_csvs(outfile = target_name, input_dir = "1_fetch/out/site_data")
     depends:
         - "1_fetch/out/site_data/nwis_01427207_data.csv"
         - "1_fetch/out/site_data/nwis_01432160_data.csv"
@@ -37,11 +37,11 @@ targets:
         - "1_fetch/out/site_data/nwis_01436690_data.csv"
         - "1_fetch/out/site_data/nwis_01466500_data.csv"
   
-  1_fetch/out/site_info.csv:
-    command: nwis_site_info(fileout = target_name, site_data = site_data)
+  site_info:
+    command: nwis_site_info(site_data = "1_fetch/out/site_data_combined.csv")
 
-  site_data_prepped:
-    command: process_annotate_style(site_data, site_info_file = '1_fetch/out/site_info.csv')	
+  2_process/out/site_data_prepped.csv:
+    command: process_annotate_style(outfile = target_name, site_data = "1_fetch/out/site_data_combined.csv", site_info = site_info)	
 
   3_visualize/out/figure_1.png:
-    command: plot_nwis_timeseries(fileout = target_name, site_data_styled = site_data_prepped)  
+    command: plot_nwis_timeseries(fileout = target_name, site_data_styled = "2_process/out/site_data_prepped.csv")  

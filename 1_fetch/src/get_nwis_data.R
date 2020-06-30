@@ -1,5 +1,5 @@
 
-combine_csvs <- function(input_dir){
+combine_csvs <- function(input_dir, outfile){
   # loop through downloaded files
   download_files <- dir(input_dir)
   download_files <- file.path(input_dir, download_files)
@@ -10,13 +10,14 @@ combine_csvs <- function(input_dir){
     these_data <- read_csv(download_file, col_types = 'ccTdcc')
     data_out <- rbind(data_out, these_data)
   }
-  return(data_out)
+  write.csv(data_out, outfile)
 }
 
 nwis_site_info <- function(fileout, site_data){
+  site_data = read_csv(site_data)
   site_no <- unique(site_data$site_no)
   site_info <- dataRetrieval::readNWISsite(site_no)
-  write_csv(site_info, fileout)
+  return(site_info)
 }
 
 
