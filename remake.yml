@@ -10,26 +10,38 @@ packages:
   - readr
   - stringr
   - purrr
+  - tools
 
 targets:
   all:
     depends: 3_visualize/out/figure_1.png
 
+  # download all the data
+  1_fetch/out/site_data/nwis_01427207_data.csv:
+    command: download_nwis_site_data(filepath=target_name)
+  1_fetch/out/site_data/nwis_01432160_data.csv:
+    command: download_nwis_site_data(filepath=target_name)
+  1_fetch/out/site_data/nwis_01435000_data.csv:
+    command: download_nwis_site_data(filepath=target_name)
+  1_fetch/out/site_data/nwis_01436690_data.csv:
+    command: download_nwis_site_data(filepath=target_name)
+  1_fetch/out/site_data/nwis_01466500_data.csv:
+    command: download_nwis_site_data(filepath=target_name)
+
   site_data:
-    command: download_nwis_data()
+    command: combine_csvs("1_fetch/out/site_data")
+    depends:
+        - "1_fetch/out/site_data/nwis_01427207_data.csv"
+        - "1_fetch/out/site_data/nwis_01432160_data.csv"
+        - "1_fetch/out/site_data/nwis_01435000_data.csv"
+        - "1_fetch/out/site_data/nwis_01436690_data.csv"
+        - "1_fetch/out/site_data/nwis_01466500_data.csv"
   
   1_fetch/out/site_info.csv:
-    command: nwis_site_info(fileout = '1_fetch/out/site_info.csv', site_data)
+    command: nwis_site_info(fileout = target_name, site_data = site_data)
 
-  site_data_clean:
-    command: process_data(site_data)
-
-  site_data_annotated:
-    command: annotate_data(site_data_clean, site_filename = '1_fetch/out/site_info.csv')
-
-  site_data_styled:
-    command: style_data(site_data_annotated)	
+  site_data_prepped:
+    command: process_annotate_style(site_data, site_info_file = '1_fetch/out/site_info.csv')	
 
   3_visualize/out/figure_1.png:
-    command: plot_nwis_timeseries(fileout = '3_visualize/out/figure_1.png', 
-      site_data_styled)  
+    command: plot_nwis_timeseries(fileout = target_name, site_data_styled = site_data_prepped)  
