@@ -1,15 +1,8 @@
 
-make_table <- function(site_data_dir){
-  file_names = dir(site_data_dir)
-  m5sums = as.vector(md5sum(site_data_dir))
-  df = data.frame('filename' = file_names, 'm5sums'=m5sums)
-  return(df)
-}
-
-
-combine_csvs <- function(input_data_table, out_dir){
+combine_csvs <- function(input_dir){
   # loop through downloaded files
-  download_files <- file.path(out_dir, input_data_table$filename)
+  download_files <- dir(input_dir)
+  download_files <- file.path(input_dir, download_files)
   data_out <- data.frame(agency_cd = c(), site_no = c(), dateTime = c(), 
                          X_00010_00000 = c(), X_00010_00000_cd = c(), tz_cd = c())
   for (download_file in download_files){

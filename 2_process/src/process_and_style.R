@@ -17,3 +17,10 @@ annotate_data <- function(site_data_clean, site_filename){
 style_data <- function(site_data_annotated){
   mutate(site_data_annotated, station_name = as.factor(station_name))
 }
+
+process_annotate_style <- function(site_data, site_info_file){
+  processed = process_data(site_data)
+  annotated = annotate_data(processed, site_info_file)
+  styled = style_data(annotated)
+  return (styled)
+}
